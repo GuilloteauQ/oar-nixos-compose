@@ -6,6 +6,7 @@
     nxc.inputs.nixpkgs.follows = "nixpkgs";
     NUR.url = "github:nix-community/NUR";
     kapack.url = "github:oar-team/nur-kapack/oar_package_cfg";
+    # kapack.url = "github:oar-team/nur-kapack/almighty_pid_cigri";
     kapack.inputs.nixpkgs.follows = "nixpkgs";
     nixpkgs-master.url = "github:NixOS/nixpkgs";
   };

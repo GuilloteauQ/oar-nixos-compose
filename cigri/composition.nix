@@ -64,6 +64,7 @@
           web.enable = true;
           host = "cigri";
           logfile = "/tmp/cigri.log";
+          cycleDuration = 30;
         };
       };
       networking.hostName = "cigri";
@@ -86,7 +87,7 @@
           done
 
           newcluster cluster_0 http://${oarServerName}/api/ jwt fakeuser fakepasswd "" ${oarServerName} oar3 resource_id 1 ""
-          systemctl restart cigri-server
+          # systemctl restart cigri-server
 
         '';
       };
