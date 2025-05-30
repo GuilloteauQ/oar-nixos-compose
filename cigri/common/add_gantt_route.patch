@@ -1,0 +1,106 @@
+diff --git a/oar/api/routers/job.py b/oar/api/routers/job.py
+index d8fecedf..e258294c 100644
+--- a/oar/api/routers/job.py
++++ b/oar/api/routers/job.py
+@@ -1,5 +1,6 @@
+ import os
+ import re
++import time
+ from typing import List, Optional
+ 
+ from fastapi import APIRouter, Body, Depends, HTTPException, Query
+@@ -517,3 +518,36 @@ def hold(
+     data["cmd_output"] = cmd_ret.to_str()
+     data["exit_status"] = cmd_ret.get_exit_value()
+     return data
++
++# @router.get("/gantt")
++@router.get("/gantt/{horizon_now}/{horizon_then}")
++def gantt(
++    horizon_now : int = 0,
++    horizon_then : int = 0,
++    db: Session = Depends(get_db),
++):
++    now = int(time.time())
++    time_horizon_now = now + horizon_now
++    time_horizon_then = now + horizon_then
++    queryCollection = APIQueryCollection(db)
++    items = queryCollection.get_gantt_prediction(time_horizon_now, time_horizon_then)
++    data = {}
++    data["now"] = now
++    data["horizon_now"] = time_horizon_now
++    data["horizon_then"] = time_horizon_then
++    data["items"] = items
++    return data
++
++@router.get("/cigri_completions/{cycle_duration}")
++def cigri_completions(
++    cycle_duration: int,
++    db: Session = Depends(get_db),
++):
++    now = int(time.time())
++    previous_cycle = now - cycle_duration
++    queryCollection = APIQueryCollection(db)
++    items = queryCollection.get_cigri_completions(previous_cycle, now)
++    data = {}
++    data["now"] = now
++    data["items"] = items
++    return data
+diff --git a/oar/lib/basequery.py b/oar/lib/basequery.py
+index a7cdd07f..e81d5437 100644
+--- a/oar/lib/basequery.py
++++ b/oar/lib/basequery.py
+@@ -182,6 +182,31 @@ class BaseQueryCollection(object):
+             query, user, from_time, to_time, states, job_ids, array_id, sql_property
+         ).order_by(Job.id)
+ 
++    def get_gantt_prediction(self, horizon_now, horizon_then):
++        db = self.session
++        query = (
++            db.query(Job)
++            .join(MoldableJobDescription, Job.id == MoldableJobDescription.id)
++            .filter(Job.queue_name == "default")
++            .filter(Job.stop_time == 0)
++            .filter(Job.state.in_(["Finishing", "Running", "Waiting", "Launching", "toLaunch"]))
++            .filter(Job.start_time - 60 <= horizon_now)
++            .filter(Job.start_time + MoldableJobDescription.walltime >= horizon_then)
++            .all()
++        )
++        return query
++
++    def get_cigri_completions(self, previous_cycle, now):
++        db = self.session
++        query = (
++            db.query(Job)
++            .filter(Job.queue_name == "besteffort")
++            .filter(Job.state.in_(["Terminated"]))
++            .filter(Job.stop_time > previous_cycle)
++            .all()
++        )
++        return query
++
+     def get_resources(self, network_address, detailed=True):
+         db = self.session
+         if detailed:
+diff --git a/oar/lib/job_handling.py b/oar/lib/job_handling.py
+index 8a2323a7..4663b780 100644
+--- a/oar/lib/job_handling.py
++++ b/oar/lib/job_handling.py
+@@ -1022,7 +1022,7 @@ def resubmit_job(session, job_id):
+         job.start_time = 0
+     job.message = ""
+     job.scheduler_info = ""
+-    job.exit_code = None
++    # job.exit_code = None
+     job.assigned_moldable_job = 0
+ 
+     session.add(job)
+@@ -2147,7 +2147,7 @@ def check_end_of_job(
+                 "idempotent" in job_types.keys()
+             ):
+                 if is_an_event_exists(job_id, "BESTEFFORT_KILL"):
+-                    new_job_id = resubmit_job(session, job_id)
++                    (_, new_job_id) = resubmit_job(job_id)
+                     logger.warning(
+                         "We resubmit the job "
+                         + str(job_id)

@@ -1,13 +1,26 @@
 { pkgs, modulesPath, nur, helpers, flavour, lib, ... }: {
   roles = let
     oarServerName = "oar-server";
+    OarCtrlA = pkgs.nur.repos.kapack.oar.overrideAttrs (old: {
+        patches = [ ./common/add_gantt_route.patch ];
+    });
     commonOARConfig = import ./common/common_oar.nix {
+      oarPackage = OarCtrlA;
       inherit pkgs modulesPath nur flavour oarServerName;
     };
     commonConfig =
       import ./common/common_config.nix { inherit pkgs modulesPath lib nur; };
 
     nfsConfig = import ./common/nfs.nix { inherit flavour oarServerName; };
+    cigriCtrlA = pkgs.nur.repos.kapack.cigri.overrideAttrs (old: {
+      src = pkgs.fetchFromGitLab {
+        domain = "gitlab.inria.fr";
+        owner = "cigri-ctrl/feedforward-approach";
+        repo = "cigri-src";
+        rev = "95f6f45eebef9024c0cf1aa71196535763698607";
+        sha256 = "sha256-eaIpnY3F3Kbr2kDyO5WnTVTOFnJ4pIOJtEA2GO3s5wY=";
+      };
+    });
   in {
     oar-server = { ... }: {
       imports = [ commonOARConfig nfsConfig.server commonConfig ];
@@ -23,7 +36,6 @@
         '';
       };
       services.oar.web.enable = true;
-
     };
 
     node = { ... }: {
@@ -40,6 +52,7 @@
       ];
       services.logrotate.enable = false;
       services.cigri = {
+        package = cigriCtrlA;
         dbserver.enable = true;
         client.enable = true;
         database = {
@@ -57,7 +70,7 @@
       # users.users.oar = { isNormalUser = true; };
       services.my-startup = {
         enable = true;
-        path = with pkgs; [ nur.repos.kapack.cigri sudo postgresql openssh ];
+        path = with pkgs; [ cigriCtrlA sudo postgresql openssh ];
         script = ''
           # Waiting cigri database is ready
           until pg_isready -h cigri -p 5432 -U postgres

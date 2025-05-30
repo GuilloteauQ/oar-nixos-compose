@@ -1,10 +1,10 @@
-{ pkgs, modulesPath, nur, flavour, oarServerName }:
+{ pkgs, modulesPath, nur, flavour, oarServerName, oarPackage ? pkgs.nur.repos.kapack.oar }:
 let
   inherit (import "${toString modulesPath}/tests/ssh-keys.nix" pkgs)
     snakeOilPrivateKey snakeOilPublicKey;
 
   add_resources = pkgs.writers.writePython3Bin "add_resources" {
-    libraries = [ pkgs.nur.repos.kapack.oar ];
+    libraries = [ oarPackage ];
   } ''
     from oar.lib.tools import get_date
     from oar.lib.resource_handling import resources_creation
@@ -37,7 +37,7 @@ in {
   environment.systemPackages = with pkgs; [
     python3
     vim
-    nur.repos.kapack.oar
+    oarPackage
     jq
     hwloc
   ];
@@ -73,6 +73,7 @@ in {
   '';
 
   services.oar = {
+    package = oarPackage;
     extraConfig = {
       LOG_LEVEL = "3";
       HIERARCHY_LABELS = "resource_id,network_address,cpuset";

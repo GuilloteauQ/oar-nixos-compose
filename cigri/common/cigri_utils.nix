@@ -23,10 +23,13 @@
   '';
 
   qtest = pkgs.writeScriptBin "qtest" ''
+    ssh node1 chmod 777 /data
+    chmod 777 /data
     cd /home/user1
     sudo -u user1 gen_campaign 1000 60 0
     sudo -u user1 gridsub -f /home/user1/campaign_1000j_60s_0M.json
-    echo "{\"type\":\"pi_ff\",\"alpha\": 0.5, \"rmax\": 16, \"kp\": 0.4, \"ki\": 0.8, \"ref\": 32, \"horizon\": 120}" > /tmp/config.json
+    echo "{\"type\":\"pi_horizon\",\"alpha\": 0.5, \"rmax\": 16, \"kp\": 0.4, \"ki\": 0.8, \"ref\": 32, \"horizon\": 120}" > /tmp/config.json
+    # echo "{\"type\":\"step\", \"u_values\": [13]}" > /tmp/config.json
     tail -f /tmp/cigri.log
   '';
 }
