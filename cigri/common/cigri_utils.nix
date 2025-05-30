@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, oarServerName ? "oar-server", ... }:
 
 {
   gen_campaign = pkgs.writeScriptBin "gen_campaign" ''
@@ -23,12 +23,27 @@
   '';
 
   qtest = pkgs.writeScriptBin "qtest" ''
+    # Registering the users
+
+    ## Root
+    export $(ssh ${oarServerName} sudo -u oar oarsub -T)
+    sudo -u oar gridtoken -i 1 -t $OAR_API_TOKEN
+    sudo -u cigri gridtoken -i 1 -t $OAR_API_TOKEN
+
+    ## user1
+    export $(ssh ${oarServerName} sudo -u user1 oarsub -T)
+    sudo -u user1 gridtoken -i 1 -t $OAR_API_TOKEN
+
+    ## user2
+    export $(ssh ${oarServerName} sudo -u user2 oarsub -T)
+    sudo -u user2 gridtoken -i 1 -t $OAR_API_TOKEN
+
     ssh node1 chmod 777 /data
     chmod 777 /data
     cd /home/user1
     sudo -u user1 gen_campaign 1000 60 0
     sudo -u user1 gridsub -f /home/user1/campaign_1000j_60s_0M.json
-    echo "{\"type\":\"pi_horizon\",\"alpha\": 0.5, \"rmax\": 16, \"kp\": 0.4, \"ki\": 0.8, \"ref\": 32, \"horizon\": 120}" > /tmp/config.json
+    echo "{\"type\":\"pi_horizon2\",\"alpha\": 0.5, \"rmax\": 16, \"kp\": 0.4, \"ki\": 0.8, \"ref\": 32, \"horizon\": 120}" > /tmp/config.json
     # echo "{\"type\":\"step\", \"u_values\": [13]}" > /tmp/config.json
     tail -f /tmp/cigri.log
   '';

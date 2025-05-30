@@ -17,8 +17,8 @@
         domain = "gitlab.inria.fr";
         owner = "cigri-ctrl/feedforward-approach";
         repo = "cigri-src";
-        rev = "95f6f45eebef9024c0cf1aa71196535763698607";
-        sha256 = "sha256-eaIpnY3F3Kbr2kDyO5WnTVTOFnJ4pIOJtEA2GO3s5wY=";
+        rev = "8b88f541b385e4e3002afeb1d3fb3be9f566abc0";
+        sha256 = "sha256-nbhV3ueJCWBszNUZYFEgefRKKv954ve+gK7GaayHsCI=";
       };
     });
   in {
@@ -88,20 +88,6 @@
           newcluster cluster_0 http://${oarServerName}/api/ jwt fakeuser fakepasswd "" ${oarServerName} oar3 resource_id 1 ""
           systemctl restart cigri-server
 
-          # Registering the users
-
-          ## Root
-          export $(ssh ${oarServerName} sudo -u oar oarsub -T)
-          sudo -u oar gridtoken -i 1 -t $OAR_API_TOKEN
-          sudo -u cigri gridtoken -i 1 -t $OAR_API_TOKEN
-
-          ## user1
-          export $(ssh ${oarServerName} sudo -u user1 oarsub -T)
-          sudo -u user1 gridtoken -i 1 -t $OAR_API_TOKEN
-
-          ## user2
-          export $(ssh ${oarServerName} sudo -u user2 oarsub -T)
-          sudo -u user2 gridtoken -i 1 -t $OAR_API_TOKEN
         '';
       };
 
