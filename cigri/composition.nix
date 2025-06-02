@@ -13,12 +13,13 @@
 
     nfsConfig = import ./common/nfs.nix { inherit flavour oarServerName; };
     cigriCtrlA = pkgs.nur.repos.kapack.cigri.overrideAttrs (old: {
+      #src = /home/quentin/ghq/gitlab.inria.fr/cigri-ctrl/feedforward-approach/cigri-src;
       src = pkgs.fetchFromGitLab {
         domain = "gitlab.inria.fr";
         owner = "cigri-ctrl/feedforward-approach";
         repo = "cigri-src";
-        rev = "8b88f541b385e4e3002afeb1d3fb3be9f566abc0";
-        sha256 = "sha256-nbhV3ueJCWBszNUZYFEgefRKKv954ve+gK7GaayHsCI=";
+        rev = "46321d0f532d2fbddce8429ec7087139e47cdf28";
+        sha256 = "sha256-KFwq/J7OrpXA/W55pBbP6EuIMtkhwpNmDSJLgEeV1wU=";
       };
     });
   in {

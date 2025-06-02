@@ -33,7 +33,7 @@ sleep $3 # {self.sleep_time}
         """
         Generate the json campaign file
         """
-        walltime = datetime.timedelta(seconds=self.sleep_time)
+        walltime = datetime.timedelta(seconds=2*self.sleep_time)
         params = ",\n\t".join(["\"param{index} {index} {sleep_time}\"".format(index=i, sleep_time=self.sleep_time) for i in range(self.nb_jobs)])
         content = f"""
 {{
