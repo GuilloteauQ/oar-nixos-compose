@@ -2,7 +2,10 @@
   roles = let
     oarServerName = "oar-server";
     OarCtrlA = pkgs.nur.repos.kapack.oar.overrideAttrs (old: {
-        patches = [ ./common/add_gantt_route.patch ];
+        patches = [
+            ./common/add_gantt_route.patch
+            ./common/oar_almighty.patch
+        ];
     });
     commonOARConfig = import ./common/common_oar.nix {
       oarPackage = OarCtrlA;
