@@ -18,8 +18,8 @@
         domain = "gitlab.inria.fr";
         owner = "cigri-ctrl/feedforward-approach";
         repo = "cigri-src";
-        rev = "46321d0f532d2fbddce8429ec7087139e47cdf28";
-        sha256 = "sha256-KFwq/J7OrpXA/W55pBbP6EuIMtkhwpNmDSJLgEeV1wU=";
+        rev = "f825dc696f1a831716bd54d08ba63ac93d9c8df6";
+        sha256 = "sha256-XqUEI3+3rYfoazLPSTLDUha9sHUMJpkwgduiL6G6OMg=";
       };
     });
   in {
