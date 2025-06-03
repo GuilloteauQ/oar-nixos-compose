@@ -1,0 +1,20 @@
+diff --git a/oar/modules/almighty.py b/oar/modules/almighty.py
+index cf2aaf10..8a12ca7d 100644
+--- a/oar/modules/almighty.py
++++ b/oar/modules/almighty.py
+@@ -65,13 +65,13 @@ greta_command = os.path.join(binpath, "oar-greta")
+ # dramatically (because it blocks only when nothing else is to be done).
+ # Nevertheless it is closely related to the precision at which the
+ # internal counters are checked
+-read_commands_timeout = 5 * 1000  # in ms
++read_commands_timeout = 1  # in ms
+ 
+ # This parameter sets the number of pending commands read from
+ # appendice before proceeding with internal work
+ # should not be set at a too high value as this would make the
+ # Almighty weak against flooding
+-max_successive_read = 1
++max_successive_read = 10
+ 
+ # Max waiting time before new scheduling attempt (in the case of
+ # no notification)
